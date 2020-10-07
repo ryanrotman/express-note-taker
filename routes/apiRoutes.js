@@ -1,4 +1,3 @@
-const { json } = require("express");
 // Dependencies
 const fs = require("fs");
 const uuid = require("uuid");
@@ -13,21 +12,26 @@ module.exports = function (app) {
 
     // API POST request
     app.post("/api/notes", function (req, res) {
-        let allNotes = fs.readFile(__dirname + "/../db/db.json", (err, data) => {
-            if (err) throw err;
-            JSON.parse(data);
-        });
-        const newNote = {
+        let allNotes = [];
+        let newNote = {
             title: req.body.title,
             text: req.body.text,
             id: uuid.v4(),
         }
-        console.log(newNote);
-        allNotes.push(newNote);
-        res.json(newNote);
-        fs.writeFile(__dirname + "/../db/db.json", JSON.stringify(allNotes), (err) => {
+        fs.readFile(__dirname + "/../db/db.json", (err, data) => {
             if (err) throw err;
-            console.log("The note has been saved.")
+            allNotes = JSON.parse(data);
+            allNotes.push(newNote);
+            fs.writeFile(__dirname + "/../db/db.json", JSON.stringify(allNotes), "utf-8", (err) => {
+                if (err) throw err;
+                console.log("The note has been saved.")
+                res.end();
+            })
         })
-    });
+        console.log(newNote)
+        window.location.reload();
+    })
+
+    // API DELETE request
+
 };
